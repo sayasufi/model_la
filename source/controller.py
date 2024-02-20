@@ -1,6 +1,6 @@
 import numpy as np
 
-from source.funcs import calculate_acceleration
+from source.funcs import calculate_new_velocities
 
 
 class AircraftController():
@@ -8,12 +8,12 @@ class AircraftController():
         self.position = position  # Начальные координаты летательного аппарата в местной географической системе координат
         self.velocity = velocity  # Начальные скорости летательного аппарата в местной географической системе координат
         self.orientation = orientation  # Начальные углы ориентации летательного аппарата
+        self.pryam_vel = 0
 
     def control(self, angular_velocities_in, acceleration_in, dt):
         """Пересчет параметров из связанной системы координат в местную географическую систему координат"""
         rotation_matrix = self.calculate_rotation_matrix()
-        accelerations = calculate_acceleration(acceleration_in, self.orientation)
-        np.add(self.velocity, np.dot(rotation_matrix, accelerations)/dt, out=self.velocity)
+        self.velocity, self.pryam_vel = calculate_new_velocities(acceleration_in, self.pryam_vel, self.orientation, dt)
         self.position += self.velocity/dt
         np.add(self.orientation, np.dot(rotation_matrix, angular_velocities_in) / dt, out=self.orientation)
         # self.orientation += angular_velocities_in/dt

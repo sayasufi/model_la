@@ -1,25 +1,30 @@
 import numpy as np
 
 
-def calculate_acceleration(acceleration, orientation):
-    """Функция для ускорения скорости по трем осям"""
-    # Преобразование углов из градусов в радианы
-    roll, pitch, yaw = orientation
-    yaw = np.radians(yaw)
-    roll = np.radians(roll)
-    pitch = np.radians(pitch)
+def calculate_new_velocities(acceleration, velocities, orientation, dt):
+    """Пересчет скоростей из связанной в географическую СК"""
+    # Преобразование углов ориентации в радианы
+    roll = np.radians(orientation[0])
+    pitch = np.radians(orientation[1])
+    yaw = np.radians(orientation[2])
 
-    # Расчет скорости в местной географической системе координат
-    acceleration_north = acceleration * np.cos(pitch) * np.cos(yaw)
-    acceleration_east = acceleration * np.cos(pitch) * np.sin(yaw)
-    acceleration_down = acceleration * np.sin(pitch)
+    # Создание матрицы поворота по осям Roll, Pitch, Yaw
+    rotation_matrix = np.array([[np.cos(pitch) * np.cos(yaw),
+                                 np.cos(pitch) * np.sin(yaw),
+                                 -np.sin(pitch)],
+                                [np.sin(roll) * np.sin(pitch) * np.cos(yaw) - np.cos(roll) * np.sin(yaw),
+                                 np.sin(roll) * np.sin(pitch) * np.sin(yaw) + np.cos(roll) * np.cos(yaw),
+                                 np.sin(roll) * np.cos(pitch)],
+                                [np.cos(roll) * np.sin(pitch) * np.cos(yaw) + np.sin(roll) * np.sin(yaw),
+                                 np.cos(roll) * np.sin(pitch) * np.sin(yaw) - np.sin(roll) * np.cos(yaw),
+                                 np.cos(roll) * np.cos(pitch)]])
 
-    print(acceleration_north, acceleration_east, acceleration_down)
-    acceleration_geographical = np.array([acceleration_north, acceleration_east, acceleration_down])
+    local_pryam_vel = np.dot(rotation_matrix, np.array([velocities / dt, 0, 0]))
+    print(local_pryam_vel)
+    # Создание вектора ускорений в местной системе координат
+    local_acceleration = np.dot(rotation_matrix, np.array([acceleration / dt, 0, 0]))
 
-    # # Преобразование скорости из местной системы координат в глобальную
-    # acceleration_geographical = np.array([acceleration_north * np.cos(roll) - acceleration_down * np.sin(roll),
-    #                                      acceleration_east,
-    #                                      acceleration_north * np.sin(roll) + acceleration_down * np.cos(roll)])
-    # print(acceleration_geographical)
-    return acceleration_geographical
+    # Пересчет скоростей по осям в местной системе координат
+    new_velocities = local_pryam_vel + local_acceleration
+    velocities += acceleration / dt
+    return new_velocities, velocities
