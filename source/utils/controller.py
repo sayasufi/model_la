@@ -1,22 +1,29 @@
 import numpy as np
 
-from source.funcs import calculate_new_velocities
+from source.utils.funcs import calculate_new_velocities, rotation_matrix
 
 
-class AircraftController():
+class AircraftController:
     def __init__(self, position, velocity, orientation):
         self.position = position  # Начальные координаты летательного аппарата в местной географической системе координат
         self.velocity = velocity  # Начальные скорости летательного аппарата в местной географической системе координат
         self.orientation = orientation  # Начальные углы ориентации летательного аппарата
-        self.pryam_vel = 0
+        self.local_velocity = 0
 
     def control(self, angular_velocities_in, acceleration_in, dt):
         """Пересчет параметров из связанной системы координат в местную географическую систему координат"""
-        rotation_matrix = self.calculate_rotation_matrix()
-        self.velocity, self.pryam_vel = calculate_new_velocities(acceleration_in, self.pryam_vel, self.orientation, dt)
-        self.position += self.velocity/dt
-        np.add(self.orientation, np.dot(rotation_matrix, angular_velocities_in) / dt, out=self.orientation)
-        # self.orientation += angular_velocities_in/dt
+
+        # rotation_matrix_in = self.calculate_rotation_matrix()
+        # np.add(self.orientation, np.dot(rotation_matrix_in, angular_velocities_in) / dt, out=self.orientation)
+
+        np.add(self.orientation, angular_velocities_in / dt, out=self.orientation)
+        self.velocity, self.local_velocity = calculate_new_velocities(acceleration_in, self.local_velocity,
+                                                                      self.orientation, dt)
+
+        np.add(self.position, self.velocity / dt, out=self.position)
+        if self.position[2] <= 0:
+            self.position[2] = 0
+            self.velocity[2] = 0
 
     def calculate_rotation_matrix(self):
         """Расчет матрицы поворота из связанной системы координат в местную географическую систему координат"""
@@ -24,22 +31,4 @@ class AircraftController():
         pitch = np.radians(self.orientation[1])
         yaw = np.radians(self.orientation[2])
 
-        rotation_matrix = np.array([
-            [
-                np.cos(pitch) * np.cos(yaw),
-                np.sin(roll) * np.sin(pitch) * np.cos(yaw) - np.cos(roll) * np.sin(yaw),
-                np.cos(roll) * np.sin(pitch) * np.cos(yaw) + np.sin(roll) * np.sin(yaw)
-            ],
-            [
-                np.cos(pitch) * np.sin(yaw),
-                np.sin(roll) * np.sin(pitch) * np.sin(yaw) + np.cos(roll) * np.cos(yaw),
-                np.cos(roll) * np.sin(pitch) * np.sin(yaw) - np.sin(roll) * np.cos(yaw)
-            ],
-            [
-                -np.sin(pitch),
-                np.sin(roll) * np.cos(pitch),
-                np.cos(roll) * np.cos(pitch)
-            ]
-        ])
-
-        return rotation_matrix
+        return rotation_matrix(roll, pitch, yaw)

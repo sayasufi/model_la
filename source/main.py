@@ -1,6 +1,9 @@
+import threading
+
 import numpy as np
 
-from controller import AircraftController
+from utils.controller import AircraftController
+from source.gui.joystick import main
 
 if __name__ == '__main__':
     initial_position = np.array([0.0, 0.0, 0.0])  # м
@@ -11,17 +14,28 @@ if __name__ == '__main__':
 
     angular_velocities = np.array([0, 0, 0])  # угловые скорости [roll_rate, pitch_rate, yaw_rate]
     acceleration = 10  # ускорения [ax, ay, az]
-    dt = 10  # Частота подачи данных
-    for i in range(21):
-        print(i)
-        if i < 10:
-            angular_velocities = np.array([90, 0, 0])
-            acceleration = 10
-        else:
-            angular_velocities = np.array([0, 90, 0])
-            acceleration = 0
-        controller.control(angular_velocities, acceleration, dt)
+    dt = 50  # Частота подачи данных
 
-        print("Position:", controller.position)
-        print("Velocity:", controller.velocity)
-        print("Orientation:", controller.orientation)
+    # thread_plot = threading.Thread(target=plotting, args=(controller, dt), daemon=True)
+    # thread_plot.start()
+
+    with (open("data/position/x.txt", "w") as f_x,
+          open("data/position/y.txt", "w") as f_y,
+          open("data/position/z.txt", "w") as f_z,
+          open("data/velocity/vx.txt", "w") as f_vx,
+          open("data/velocity/vy.txt", "w") as f_vy,
+          open("data/velocity/vz.txt", "w") as f_vz,
+          open("data/orientation/roll.txt", "w") as f_roll,
+          open("data/orientation/pitch.txt", "w") as f_pitch,
+          open("data/orientation/yaw.txt", "w") as f_yaw,
+          open("data/angular_velocities/w_roll.txt", "w") as f_wroll,
+          open("data/angular_velocities/w_pitch.txt", "w") as f_wpitch,
+          open("data/angular_velocities/w_yaw.txt", "w") as f_wyaw,
+          open("data/a.txt", "w") as f_a,
+          open("data/time.txt", "w") as f_time):
+        print("Файлы очищены")
+
+    # thread_plot = threading.Thread(target=main, args=(controller, dt), daemon=True)
+    # thread_plot.start()
+
+    main(controller, dt)
