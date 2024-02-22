@@ -18,9 +18,6 @@ if __name__ == '__main__':
     acceleration = 10  # ускорения [ax, ay, az]
     dt = 50  # Частота подачи данных
 
-    # thread_plot = threading.Thread(target=plotting, args=(controller, dt), daemon=True)
-    # thread_plot.start()
-
     with (open("data/position/x.txt", "w") as f_x,
           open("data/position/y.txt", "w") as f_y,
           open("data/position/z.txt", "w") as f_z,
@@ -36,8 +33,5 @@ if __name__ == '__main__':
           open("data/a.txt", "w") as f_a,
           open("data/time.txt", "w") as f_time):
         logging.info("Предыдущие логи полетов очищены")
-
-    # thread_plot = threading.Thread(target=main, args=(controller, dt), daemon=True)
-    # thread_plot.start()
 
     main(controller, dt)

@@ -1,3 +1,4 @@
+import logging
 import subprocess
 import time
 
@@ -5,10 +6,9 @@ from source.logs.setup_log import setup_logging
 
 
 def start():
-    with open("logs/log.txt", "w"):
-        pass
-
     setup_logging("logs/log.txt")
+    with open("logs/log.txt", "w"):
+        logging.info("Предыдущие логи программы удалены")
 
     # Запускаем второй скрипт
     process2 = subprocess.Popen(['python', 'main/graphics.py'])

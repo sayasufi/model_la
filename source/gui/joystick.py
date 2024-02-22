@@ -7,6 +7,7 @@ import numpy as np
 import pygame
 from environs import Env
 
+from sdfsdfsf import draw_compass
 from source.data.data_save import save_in_files
 from source.utils.automatic_leveling import leveling
 
@@ -49,6 +50,8 @@ MAX_W_ROLL = int(env("MAX_W_ROLL"))
 MAX_W_PITCH = int(env("MAX_W_PITCH"))
 MAX_W_YAW = int(env("MAX_W_YAW"))
 
+# Загрузка картинки компаса
+compass_image = pygame.image.load("compass.png")
 
 def main_draw(joystick_pos, control_pos, yaw_pos):
     # Очистка экрана
@@ -114,6 +117,8 @@ def yaw_update(yaw_update_in, event):
 def main(controller, dt):
     global flag
     global ticks
+
+    draw_compass(controller.orientation[2])
 
     # Позиция джойстика
     joystick_pos = [410, window_height // 2]
@@ -196,7 +201,7 @@ def main(controller, dt):
                     flag = 0
         # Отрисовка
         main_draw(joystick_pos, control_pos, yaw_pos)
-        # Вывод значений положения джойстика по осям x и y в консоль
+
         roll = (joystick_pos[0] - window_width // 2 - 105) / (150 / MAX_W_ROLL)
         pitch = -(joystick_pos[1] - window_height // 2) / (150 / MAX_W_PITCH)
         aa = (-control_pos[1] + window_height // 2) / (180 / MAX_A)
@@ -209,6 +214,7 @@ def main(controller, dt):
 
         # Обновление экрана
         pygame.display.update()
+
         controller.control(np.array([roll, pitch, yaw_cord]), aa, dt)
         l_x[k] = controller.position[0]
         l_y[k] = controller.position[1]
@@ -255,9 +261,5 @@ def main(controller, dt):
                     f"Position: {controller.position}\n"
                     f"Velocity: {controller.velocity}\n"
                     f"Orientation: {controller.orientation}")
-
-            # print("Position:", controller.position)
-            # print("Velocity:", controller.velocity)
-            # print("Orientation:", controller.orientation)
 
         ticks += 1
