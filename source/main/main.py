@@ -2,7 +2,7 @@ import threading
 
 import numpy as np
 
-from utils.controller import AircraftController
+from source.utils.controller import AircraftController
 from source.gui.joystick import main
 
 if __name__ == '__main__':
