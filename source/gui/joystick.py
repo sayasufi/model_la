@@ -1,3 +1,4 @@
+import logging
 import sys
 import threading
 import time
@@ -155,12 +156,16 @@ def main(controller, dt):
                     flag = 0
         # Отрисовка
         main_draw(joystick_pos, control_pos, yaw_pos)
-
         # Вывод значений положения джойстика по осям x и y в консоль
         x = (joystick_pos[0] - window_width // 2 - 105) / 5
         y = -(joystick_pos[1] - window_height // 2) / 5
         z = (-control_pos[1] + window_height // 2) / 18
         yaw_cord = (yaw_pos[0] - 305) / 14.25
+
+        x += np.random.normal(0, 30 / 100, 1)[0]
+        y += np.random.normal(0, 30 / 100, 1)[0]
+        z += np.random.normal(0, 10 / 100, 1)[0]
+        yaw_cord += np.random.normal(0, 20 / 100, 1)[0]
 
         # Обновление экрана
         pygame.display.update()
@@ -204,9 +209,15 @@ def main(controller, dt):
             l_wyaw = [0] * dt
 
             k = 0
+            if ticks % (dt * 4) == 0:
+                logging.info(
+                    f"Time: {ticks / 50}\n"
+                    f"Position: {controller.position}\n"
+                    f"Velocity: {controller.velocity}\n"
+                    f"Orientation: {controller.orientation}")
 
-        # print("Position:", controller.position)
-        # print("Velocity:", controller.velocity)
-        # print("Orientation:", controller.orientation)
+            # print("Position:", controller.position)
+            # print("Velocity:", controller.velocity)
+            # print("Orientation:", controller.orientation)
 
         ticks += 1

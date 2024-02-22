@@ -1,8 +1,13 @@
+import logging
+
 import numpy as np
 import pandas as pd
 
+from source.logs.setup_log import setup_logging
+
 
 def write_csv():
+    setup_logging("logs/log.txt")
     with (open("data/position/x.txt", "r") as f_x,
           open("data/position/y.txt", "r") as f_y,
           open("data/position/z.txt", "r") as f_z,
@@ -28,6 +33,7 @@ def write_csv():
             df[names[i]] = np.loadtxt(list_files[i])
 
         df.to_csv("data/data.csv", index=False)
+        logging.info("Таблица с полетными данными создана в data/data.csv")
 
 
 if __name__ == "__main__":

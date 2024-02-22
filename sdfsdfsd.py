@@ -2,21 +2,18 @@ import matplotlib.animation as animation
 import numpy as np
 from matplotlib import pyplot as plt
 
-from source.logs.setup_log import setup_logging
-
 
 def update_plot(frame):
-    setup_logging("logs/log.txt")
-    with (open("./data/position/x.txt", "r") as f_x,
-          open("./data/position/y.txt", "r") as f_y,
-          open("./data/position/z.txt", "r") as f_z,
-          open("./data/velocity/vx.txt", "r") as f_vx,
-          open("./data/velocity/vy.txt", "r") as f_vy,
-          open("./data/velocity/vz.txt", "r") as f_vz,
-          open("./data/orientation/roll.txt", "r") as f_roll,
-          open("./data/orientation/pitch.txt", "r") as f_pitch,
-          open("./data/orientation/yaw.txt", "r") as f_yaw,
-          open("./data/time.txt", "r") as f_time):
+    with (open("source/data/position/x.txt", "r") as f_x,
+          open("source/data/position/y.txt", "r") as f_y,
+          open("source/data/position/z.txt", "r") as f_z,
+          open("source/data/velocity/vx.txt", "r") as f_vx,
+          open("source/data/velocity/vy.txt", "r") as f_vy,
+          open("source/data/velocity/vz.txt", "r") as f_vz,
+          open("source/data/orientation/roll.txt", "r") as f_roll,
+          open("source/data/orientation/pitch.txt", "r") as f_pitch,
+          open("source/data/orientation/yaw.txt", "r") as f_yaw,
+          open("source/data/time.txt", "r") as f_time):
         list_files = [[f_x, f_y, f_z], [f_vx, f_vy, f_vz], [f_roll, f_pitch, f_yaw]]
         list_names = [["Координата Х", "Координата Y", "Координата Z"],
                       ["Скорость по X", "Скорость по Y", "Скорость по Z"], ["Крен", "Тангаж", "Курс"]]
@@ -34,11 +31,8 @@ def update_plot(frame):
                 axs[i][j].grid(True)
 
         plt.subplots_adjust(hspace=0.5, wspace=0.3)
-            # if not plt.get_fignums():  # Проверяем, закрыто ли окно с графиками
-            #     break
 
 
-if __name__ == "__main__":
-    fig, axs = plt.subplots(3, 3, figsize=(12.5, 10))
-    ani = animation.FuncAnimation(fig, update_plot, interval=1000, cache_frame_data=False)
-    plt.show()
+fig, axs = plt.subplots(3, 3, figsize=(12.5, 10))
+ani = animation.FuncAnimation(fig, update_plot, interval=1000, cache_frame_data=False)
+plt.show()

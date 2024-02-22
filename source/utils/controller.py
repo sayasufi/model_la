@@ -1,3 +1,7 @@
+import logging
+import threading
+import time
+
 import numpy as np
 
 from source.utils.funcs import calculate_new_velocities, rotation_matrix
@@ -9,6 +13,7 @@ class AircraftController:
         self.velocity = velocity  # Начальные скорости летательного аппарата в местной географической системе координат
         self.orientation = orientation  # Начальные углы ориентации летательного аппарата
         self.local_velocity = 0
+        self.flag = True
 
     def control(self, angular_velocities_in, acceleration_in, dt):
         """Пересчет параметров из связанной системы координат в местную географическую систему координат"""
@@ -21,9 +26,19 @@ class AircraftController:
                                                                       self.orientation, dt)
 
         np.add(self.position, self.velocity / dt, out=self.position)
+        if self.position[2] < 0 and self.flag and self.velocity[2] + 10 < 0:
+            logging.info("Координата по Z не может быть меньше 0")
+            self.flag = False
+            thread = threading.Thread(target=self.set_flag_true)
+            thread.start()
+
         if self.position[2] <= 0:
             self.position[2] = 0
             self.velocity[2] = 0
+
+    def set_flag_true(self):
+        time.sleep(4)
+        self.flag = True
 
     def calculate_rotation_matrix(self):
         """Расчет матрицы поворота из связанной системы координат в местную географическую систему координат"""

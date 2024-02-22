@@ -1,11 +1,14 @@
+import logging
 import threading
 
 import numpy as np
 
+from source.logs.setup_log import setup_logging
 from source.utils.controller import AircraftController
 from source.gui.joystick import main
 
 if __name__ == '__main__':
+    setup_logging("logs/log.txt")
     initial_position = np.array([0.0, 0.0, 0.0])  # м
     initial_velocity = np.array([0.0, 0.0, 0.0])  # м/c
     initial_orientation = np.array([0.0, 0.0, 0.0])  # град
@@ -33,7 +36,7 @@ if __name__ == '__main__':
           open("data/angular_velocities/w_yaw.txt", "w") as f_wyaw,
           open("data/a.txt", "w") as f_a,
           open("data/time.txt", "w") as f_time):
-        print("Файлы очищены")
+        logging.info("Предыдущие логи полетов очищены")
 
     # thread_plot = threading.Thread(target=main, args=(controller, dt), daemon=True)
     # thread_plot.start()
