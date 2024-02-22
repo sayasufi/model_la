@@ -34,8 +34,8 @@ def update_plot(frame):
                 axs[i][j].grid(True)
 
         plt.subplots_adjust(hspace=0.5, wspace=0.3)
-            # if not plt.get_fignums():  # Проверяем, закрыто ли окно с графиками
-            #     break
+        # if not plt.get_fignums():  # Проверяем, закрыто ли окно с графиками
+        #     break
 
 
 if __name__ == "__main__":

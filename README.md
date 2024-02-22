@@ -1,0 +1,2 @@
+<a href="https://wakatime.com/badge/user/018c3f04-b140-41f9-a489-5b0143d153f5/project/018dc565-b092-4565-aeff-a1d969b2fe82"><img src="https://wakatime.com/badge/user/018c3f04-b140-41f9-a489-5b0143d153f5/project/018dc565-b092-4565-aeff-a1d969b2fe82.svg" alt="wakatime"></a>
+# Симулятор полета

@@ -1,11 +1,10 @@
 import logging
-import threading
 
 import numpy as np
 
+from source.gui.joystick import main
 from source.logs.setup_log import setup_logging
 from source.utils.controller import AircraftController
-from source.gui.joystick import main
 
 if __name__ == '__main__':
     setup_logging("logs/log.txt")

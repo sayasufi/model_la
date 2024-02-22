@@ -5,8 +5,10 @@ import time
 
 import numpy as np
 import pygame
+from environs import Env
 
 from source.data.data_save import save_in_files
+from source.utils.automatic_leveling import leveling
 
 flag = 0
 ticks = 0
@@ -27,26 +29,36 @@ FONT = pygame.font.Font(None, 36)
 text1 = FONT.render("Ускорение", True, RED)
 text2 = FONT.render("Крен, тангаж", True, RED)
 text3 = FONT.render("Курс", True, RED)
+text4 = FONT.render("Горизонт", True, RED)
 
-window = pygame.display.set_mode((window_width, window_height + 70))
+window = pygame.display.set_mode((window_width, window_height + 70 + 100))
 pygame.display.set_caption("Джойстик")
 
 # Радиус джойстика
-joystick_radius = 50
+joystick_radius = 30
 control_height = 20
 control_width = 100
 yaw_width = 20
 yaw_height = 30
 
+# Максимальные скорости и ускорения
+env = Env()
+env.read_env(".env")
+MAX_A = int(env("MAX_A"))
+MAX_W_ROLL = int(env("MAX_W_ROLL"))
+MAX_W_PITCH = int(env("MAX_W_PITCH"))
+MAX_W_YAW = int(env("MAX_W_YAW"))
+
 
 def main_draw(joystick_pos, control_pos, yaw_pos):
     # Очистка экрана
     window.fill(WHITE)
+    pygame.draw.circle(window, BLACK, joystick_pos, joystick_radius)
+    pygame.draw.circle(window, WHITE, joystick_pos, 5)
     pygame.draw.line(window, (128, 0, 0), (410, 0), (410, 400))
     pygame.draw.line(window, (128, 0, 0), (0, 200), (610, 200))
 
     # Рисование джойстика
-    pygame.draw.circle(window, BLACK, joystick_pos, joystick_radius)
     pygame.draw.rect(window, BLACK, (
         control_pos[0] - control_width, control_pos[1] - control_height, control_width * 2, control_height * 2))
     pygame.draw.rect(window, BLACK, (
@@ -59,6 +71,9 @@ def main_draw(joystick_pos, control_pos, yaw_pos):
     # Рисование линии
     pygame.draw.rect(window, (105, 105, 105), (200, 0, 10, 400))
     pygame.draw.rect(window, (105, 105, 105), (0, window_height, window_width, 10))
+    pygame.draw.rect(window, (105, 105, 105), (0, window_height + 70, window_width, 10))
+    pygame.draw.rect(window, BLACK, (200, window_height + 70 + 20, 200, 70))
+    window.blit(text4, (240, window_height + 70 + 40))
 
 
 def joystick_update(joystick_pos_in, event):
@@ -67,6 +82,14 @@ def joystick_update(joystick_pos_in, event):
     # Ограничение перемещения джойстика в пределах окна
     joystick_pos_in[0] = max(210 + joystick_radius, min(window_width - joystick_radius, joystick_pos_in[0]))
     joystick_pos_in[1] = max(joystick_radius, min(window_height - joystick_radius, joystick_pos_in[1]))
+    return joystick_pos_in
+
+
+def joystick_auto(controller, dt):
+    joystick_pos_in = [0, 0]
+    wroll, wpitch = leveling(controller.orientation[0], controller.orientation[1], dt)
+    joystick_pos_in[0] = wroll * (150 / MAX_W_ROLL) + 105 + window_width // 2
+    joystick_pos_in[1] = -wpitch * (150 / MAX_W_PITCH) + window_height // 2
     return joystick_pos_in
 
 
@@ -116,6 +139,13 @@ def main(controller, dt):
     # Основной цикл программы
     while True:
         time.sleep(1 / dt)
+
+        if flag == 4:
+            joystick_pos = joystick_auto(controller, dt)
+            if abs(controller.orientation[0]) + abs(controller.orientation[1]) < 0.1:
+                joystick_pos = [410, window_height // 2]
+                flag = 0
+
         # Обработка событий
         for event in pygame.event.get():
 
@@ -130,6 +160,7 @@ def main(controller, dt):
                     control_pos = control_update(control_pos, event)
                 elif flag == 3:
                     yaw_pos = yaw_update(yaw_pos, event)
+
                 elif pygame.mouse.get_pressed()[0]:
                     if (joystick_pos[0] - joystick_radius <= pygame.mouse.get_pos()[0] <= joystick_pos[
                         0] + joystick_radius) and (joystick_pos[1] - joystick_radius <= pygame.mouse.get_pos()[1] <=
@@ -144,6 +175,10 @@ def main(controller, dt):
                                              yaw_pos[1] + yaw_height):
                         flag = 3
 
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if (200 <= pygame.mouse.get_pos()[0] <= 400) and (
+                        window_height + 70 + 20 <= pygame.mouse.get_pos()[1] <= window_height + 70 + 90):
+                    flag = 4
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 if flag == 1:
@@ -152,24 +187,29 @@ def main(controller, dt):
                 elif flag == 3:
                     yaw_pos = [window_width // 2, window_height + 40]
                     flag = 0
+                elif flag == 4:
+                    joystick_pos = joystick_auto(controller, dt)
+                    if abs(controller.orientation[0]) + abs(controller.orientation[1]) < 0.1:
+                        joystick_pos = [410, window_height // 2]
+                        flag = 0
                 else:
                     flag = 0
         # Отрисовка
         main_draw(joystick_pos, control_pos, yaw_pos)
         # Вывод значений положения джойстика по осям x и y в консоль
-        x = (joystick_pos[0] - window_width // 2 - 105) / 5
-        y = -(joystick_pos[1] - window_height // 2) / 5
-        z = (-control_pos[1] + window_height // 2) / 18
-        yaw_cord = (yaw_pos[0] - 305) / 14.25
+        roll = (joystick_pos[0] - window_width // 2 - 105) / (150 / MAX_W_ROLL)
+        pitch = -(joystick_pos[1] - window_height // 2) / (150 / MAX_W_PITCH)
+        aa = (-control_pos[1] + window_height // 2) / (180 / MAX_A)
+        yaw_cord = (yaw_pos[0] - 305) / (285 / MAX_W_YAW)
 
-        x += np.random.normal(0, 30 / 100, 1)[0]
-        y += np.random.normal(0, 30 / 100, 1)[0]
-        z += np.random.normal(0, 10 / 100, 1)[0]
+        roll += np.random.normal(0, 30 / 100, 1)[0]
+        pitch += np.random.normal(0, 30 / 100, 1)[0]
+        aa += np.random.normal(0, 10 / 100, 1)[0]
         yaw_cord += np.random.normal(0, 20 / 100, 1)[0]
 
         # Обновление экрана
         pygame.display.update()
-        controller.control(np.array([x, y, yaw_cord]), z, dt)
+        controller.control(np.array([roll, pitch, yaw_cord]), aa, dt)
         l_x[k] = controller.position[0]
         l_y[k] = controller.position[1]
         l_z[k] = controller.position[2]
@@ -180,9 +220,9 @@ def main(controller, dt):
         l_pitch[k] = controller.orientation[1]
         l_yaw[k] = controller.orientation[2]
         l_time[k] = ticks / 50
-        l_a[k] = z
-        l_wroll[k] = x
-        l_wpitch[k] = y
+        l_a[k] = aa
+        l_wroll[k] = roll
+        l_wpitch[k] = pitch
         l_wyaw[k] = yaw_cord
 
         k += 1

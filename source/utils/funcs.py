@@ -1,10 +1,16 @@
+import logging
+import threading
+import time
+
 import numpy as np
 from scipy.spatial.transform import Rotation
+
+flag = True
 
 
 def scipy_rotate(vector, roll, pitch, yaw):
     """Вращение на вокруг трех осей"""
-    m_rot = Rotation.from_euler('xyz', [roll, -pitch, yaw]).as_matrix()
+    m_rot = Rotation.from_euler('zyx', [yaw, -pitch, roll]).as_matrix()
     rot = np.squeeze(np.matmul(vector, m_rot))
     return rot
 
@@ -32,6 +38,7 @@ def rotation_matrix(roll, pitch, yaw):
 
 def calculate_new_velocities(acceleration, velocity, orientation, dt):
     """Пересчет скоростей из связанной в географическую СК"""
+    global flag
     # Преобразование углов ориентации в радианы
     roll = np.radians(orientation[0])
     pitch = np.radians(orientation[1])
@@ -42,6 +49,11 @@ def calculate_new_velocities(acceleration, velocity, orientation, dt):
         velocity = 0
     if velocity > 300:
         velocity = 300
+        if flag:
+            logging.info(f"Достигнута максимальная скорость {velocity} м/с")
+            flag = False
+            thread = threading.Thread(target=set_flag_true, daemon=True)
+            thread.start()
 
     # matrix = rotation_matrix(roll, pitch, yaw)
     # local_velocity = np.dot(matrix, np.array([velocity, 0, 0]))
@@ -50,3 +62,9 @@ def calculate_new_velocities(acceleration, velocity, orientation, dt):
     local_velocity[2] -= 10
 
     return local_velocity, velocity
+
+
+def set_flag_true():
+    global flag
+    time.sleep(4)
+    flag = True

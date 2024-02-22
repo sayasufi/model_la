@@ -1,6 +1,4 @@
-import matplotlib
 from matplotlib import pyplot as plt
-
 
 save_flag = False
 

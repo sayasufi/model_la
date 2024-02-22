@@ -29,7 +29,7 @@ class AircraftController:
         if self.position[2] < 0 and self.flag and self.velocity[2] + 10 < 0:
             logging.info("Координата по Z не может быть меньше 0")
             self.flag = False
-            thread = threading.Thread(target=self.set_flag_true)
+            thread = threading.Thread(target=self.set_flag_true, daemon=True)
             thread.start()
 
         if self.position[2] <= 0:
