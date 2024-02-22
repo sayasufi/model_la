@@ -7,16 +7,16 @@ from source.logs.setup_log import setup_logging
 
 def update_plot(frame):
     setup_logging("logs/log.txt")
-    with (open("./data/position/x.txt", "r") as f_x,
-          open("./data/position/y.txt", "r") as f_y,
-          open("./data/position/z.txt", "r") as f_z,
-          open("./data/velocity/vx.txt", "r") as f_vx,
-          open("./data/velocity/vy.txt", "r") as f_vy,
-          open("./data/velocity/vz.txt", "r") as f_vz,
-          open("./data/orientation/roll.txt", "r") as f_roll,
-          open("./data/orientation/pitch.txt", "r") as f_pitch,
-          open("./data/orientation/yaw.txt", "r") as f_yaw,
-          open("./data/time.txt", "r") as f_time):
+    with (open("./data/txt/position/x.txt", "r") as f_x,
+          open("./data/txt/position/y.txt", "r") as f_y,
+          open("./data/txt/position/z.txt", "r") as f_z,
+          open("./data/txt/velocity/vx.txt", "r") as f_vx,
+          open("./data/txt/velocity/vy.txt", "r") as f_vy,
+          open("./data/txt/velocity/vz.txt", "r") as f_vz,
+          open("./data/txt/orientation/roll.txt", "r") as f_roll,
+          open("./data/txt/orientation/pitch.txt", "r") as f_pitch,
+          open("./data/txt/orientation/yaw.txt", "r") as f_yaw,
+          open("./data/txt/time.txt", "r") as f_time):
         list_files = [[f_x, f_y, f_z], [f_vx, f_vy, f_vz], [f_roll, f_pitch, f_yaw]]
         list_names = [["Координата Х", "Координата Y", "Координата Z"],
                       ["Скорость по X", "Скорость по Y", "Скорость по Z"], ["Крен", "Тангаж", "Курс"]]

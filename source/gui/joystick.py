@@ -1,4 +1,5 @@
 import logging
+import socket
 import sys
 import threading
 import time
@@ -7,7 +8,6 @@ import numpy as np
 import pygame
 from environs import Env
 
-from sdfsdfsf import draw_compass
 from source.data.data_save import save_in_files
 from source.utils.automatic_leveling import leveling
 
@@ -50,8 +50,9 @@ MAX_W_ROLL = int(env("MAX_W_ROLL"))
 MAX_W_PITCH = int(env("MAX_W_PITCH"))
 MAX_W_YAW = int(env("MAX_W_YAW"))
 
+
 # Загрузка картинки компаса
-compass_image = pygame.image.load("compass.png")
+# compass_image = pygame.image.load("compass.png")
 
 def main_draw(joystick_pos, control_pos, yaw_pos):
     # Очистка экрана
@@ -118,7 +119,15 @@ def main(controller, dt):
     global flag
     global ticks
 
-    draw_compass(controller.orientation[2])
+    # Подключаемся к серверу
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address = ('localhost', 12345)
+    client_socket.connect(server_address)
+
+    # Подключаемся к серверу
+    client_socket2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address2 = ('localhost', 12346)
+    client_socket2.connect(server_address2)
 
     # Позиция джойстика
     joystick_pos = [410, window_height // 2]
@@ -225,6 +234,12 @@ def main(controller, dt):
         l_roll[k] = controller.orientation[0]
         l_pitch[k] = controller.orientation[1]
         l_yaw[k] = controller.orientation[2]
+        try:
+            client_socket.sendall(str(controller.orientation[2]).encode())
+        except ConnectionResetError:
+            pygame.quit()
+            sys.exit()
+
         l_time[k] = ticks / 50
         l_a[k] = aa
         l_wroll[k] = roll
@@ -234,6 +249,12 @@ def main(controller, dt):
         k += 1
 
         if ticks % dt == 0:
+            try:
+                client_socket2.sendall(f"{controller.position[0]} {controller.position[1]}".encode())
+            except ConnectionResetError:
+                pygame.quit()
+                sys.exit()
+
             list_values = [l_x, l_y, l_z, l_vx, l_vy, l_vz, l_roll, l_pitch, l_yaw, l_time, l_wroll, l_wpitch, l_wyaw,
                            l_a]
             thread_file = threading.Thread(target=save_in_files, args=(list_values,), daemon=True)

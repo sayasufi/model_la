@@ -18,20 +18,20 @@ if __name__ == '__main__':
     acceleration = 10  # ускорения [ax, ay, az]
     dt = 50  # Частота подачи данных
 
-    with (open("data/position/x.txt", "w") as f_x,
-          open("data/position/y.txt", "w") as f_y,
-          open("data/position/z.txt", "w") as f_z,
-          open("data/velocity/vx.txt", "w") as f_vx,
-          open("data/velocity/vy.txt", "w") as f_vy,
-          open("data/velocity/vz.txt", "w") as f_vz,
-          open("data/orientation/roll.txt", "w") as f_roll,
-          open("data/orientation/pitch.txt", "w") as f_pitch,
-          open("data/orientation/yaw.txt", "w") as f_yaw,
-          open("data/angular_velocities/w_roll.txt", "w") as f_wroll,
-          open("data/angular_velocities/w_pitch.txt", "w") as f_wpitch,
-          open("data/angular_velocities/w_yaw.txt", "w") as f_wyaw,
-          open("data/a.txt", "w") as f_a,
-          open("data/time.txt", "w") as f_time):
+    with (open("data/txt/position/x.txt", "w") as f_x,
+          open("data/txt/position/y.txt", "w") as f_y,
+          open("data/txt/position/z.txt", "w") as f_z,
+          open("data/txt/velocity/vx.txt", "w") as f_vx,
+          open("data/txt/velocity/vy.txt", "w") as f_vy,
+          open("data/txt/velocity/vz.txt", "w") as f_vz,
+          open("data/txt/orientation/roll.txt", "w") as f_roll,
+          open("data/txt/orientation/pitch.txt", "w") as f_pitch,
+          open("data/txt/orientation/yaw.txt", "w") as f_yaw,
+          open("data/txt/angular_velocities/w_roll.txt", "w") as f_wroll,
+          open("data/txt/angular_velocities/w_pitch.txt", "w") as f_wpitch,
+          open("data/txt/angular_velocities/w_yaw.txt", "w") as f_wyaw,
+          open("data/txt/a.txt", "w") as f_a,
+          open("data/txt/time.txt", "w") as f_time):
         logging.info("Предыдущие логи полетов очищены")
 
     main(controller, dt)
