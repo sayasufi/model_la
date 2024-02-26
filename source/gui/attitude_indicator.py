@@ -37,10 +37,10 @@ def attitude_indicator():
     pygame.draw.line(screen, (139, 0, 0), (x, 0), (x, height), 2)
     pygame.draw.line(screen, (139, 0, 0), (0, y), (width, y), 2)
 
-    start_x = x - radius*4 * math.cos(math.radians(roll))
-    start_y = y - radius*4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch))
-    end_x = x + radius*4 * math.cos(math.radians(roll))
-    end_y = y + radius*4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch))
+    start_x = x - radius * 4 * math.cos(math.radians(roll))
+    start_y = y - radius * 4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch))
+    end_x = x + radius * 4 * math.cos(math.radians(roll))
+    end_y = y + radius * 4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch))
 
     pygame.draw.line(screen, (0, 170, 0), (start_x, start_y), (end_x, end_y), 8)
 

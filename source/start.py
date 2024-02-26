@@ -15,7 +15,7 @@ def start():
     process_attitude = subprocess.Popen(['python', 'gui/attitude_indicator.py'])
     process1 = subprocess.Popen(['python', 'main/main.py'])
 
-    time.sleep(3)
+    time.sleep(4)
 
     process_browser = subprocess.Popen(['python', 'utils/browser_map.py'])
     process_graphs = subprocess.Popen(['python', 'main/graphics.py'])

@@ -1,8 +1,6 @@
 import socket
-import subprocess
 import sys
 import time
-import webbrowser
 
 import folium
 from environs import Env
