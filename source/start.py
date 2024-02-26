@@ -12,6 +12,7 @@ def start():
 
     process_map = subprocess.Popen(['python', 'gui/map.py'])
     process_compass = subprocess.Popen(['python', 'gui/compass.py'])
+    process_attitude = subprocess.Popen(['python', 'gui/attitude_indicator.py'])
     process1 = subprocess.Popen(['python', 'main/main.py'])
 
     time.sleep(3)
@@ -24,6 +25,7 @@ def start():
     process_compass.kill()
     process_map.kill()
     process_browser.kill()
+    process_attitude.kill()
 
     # Запускаем третий скрипт
     process5 = subprocess.Popen(['python', 'main/to_csv.py'])

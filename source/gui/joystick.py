@@ -129,6 +129,11 @@ def main(controller, dt):
     server_address2 = ('localhost', 12346)
     client_socket2.connect(server_address2)
 
+    # Подключаемся к серверу
+    client_socket3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_address3 = ('localhost', 12347)
+    client_socket3.connect(server_address3)
+
     # Позиция джойстика
     joystick_pos = [410, window_height // 2]
     control_pos = [100, window_height // 2]
@@ -236,6 +241,12 @@ def main(controller, dt):
         l_yaw[k] = controller.orientation[2]
         try:
             client_socket.sendall(str(controller.orientation[2]).encode())
+        except ConnectionResetError:
+            pygame.quit()
+            sys.exit()
+
+        try:
+            client_socket3.sendall(f"{controller.orientation[0]} {controller.orientation[1]}".encode())
         except ConnectionResetError:
             pygame.quit()
             sys.exit()
