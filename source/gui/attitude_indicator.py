@@ -25,7 +25,7 @@ def attitude_indicator():
 
     try:
         roll, pitch = client_socket.recv(1024).decode().split(" ")
-        roll = float(roll)
+        roll = -float(roll)
         pitch = float(pitch)
     except ValueError:
         pygame.quit()
@@ -37,10 +37,15 @@ def attitude_indicator():
     pygame.draw.line(screen, (139, 0, 0), (x, 0), (x, height), 2)
     pygame.draw.line(screen, (139, 0, 0), (0, y), (width, y), 2)
 
+    if math.cos(math.radians(pitch)) > 0:
+        delta = 1
+    else:
+        delta = -1
+
     start_x = x - radius * 4 * math.cos(math.radians(roll))
-    start_y = y - radius * 4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch))
+    start_y = y - radius * 4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch)) * delta
     end_x = x + radius * 4 * math.cos(math.radians(roll))
-    end_y = y + radius * 4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch))
+    end_y = y + radius * 4 * math.sin(math.radians(roll)) - radius * math.sin(math.radians(pitch)) * delta
 
     pygame.draw.line(screen, (0, 170, 0), (start_x, start_y), (end_x, end_y), 8)
 

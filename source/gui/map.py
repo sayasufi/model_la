@@ -1,3 +1,4 @@
+import math
 import socket
 import sys
 import time
@@ -31,9 +32,19 @@ def update_map():
     lon.append(loni)
 
     places = [[x[0], x[1]] for x in zip(lat, lon)]
-
+    l = math.sqrt(float(x) ** 2 + float(y) ** 2)
+    if l < 4000:
+        zoom = 14
+    elif 4000 <= l < 8000:
+        zoom = 13
+    elif 8000 <= l < 16000:
+        zoom = 12
+    elif 16000 <= l < 32000:
+        zoom = 11
+    else:
+        zoom = 10
     # Создание карты
-    m = folium.Map(places[0], tiles='OpenStreetMap', zoom_start=13)
+    m = folium.Map(places[0], tiles='OpenStreetMap', zoom_start=zoom)
 
     # Добавление траектории на карту
     polyline = folium.PolyLine(locations=places, color='blue', weight=3)
