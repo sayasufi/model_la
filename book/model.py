@@ -5,14 +5,14 @@ from const import *
 
 class TU154:
     def __init__(self):
-        self.V_ = 0
-        self.sigmae = 0
-        self.sigmar = 0
-        self.sigmaa = 0
-        self.sigmast = -1.26
+        self.V_ = 72.2
+        self.sigma_e = 0
+        self.sigma_r = 0
+        self.sigma_a = 0
+        self.sigma_st = -1.26
 
         # Углы тангажа, рыскания и крена
-        self.pitch = 0
+        self.pitch = 2.94
         self.roll = 0
         self.yaw = 0
 
@@ -22,18 +22,18 @@ class TU154:
         self.Vzg_ = 0
 
         # Абсолютные скорости
-        self.Vxg = 0
-        self.Vyg = 0
+        self.Vxg = 67.13
+        self.Vyg = -3.13
         self.Vzg = 0
 
         # Тяга
-        self.P = 0
+        self.P = 124500
 
         # Частота
         self.dt = 50
 
         # Компоненты скорости ветра
-        self.Wxg = 0
+        self.Wxg = -5
         self.Wyg = 0
         self.Wzg = 0
 
@@ -63,23 +63,38 @@ class TU154:
         self.w_roll = 0
 
         # Величина J определяется через моменты инерции Ix, Iy, Ixy:
-        self.J = Ix * Iy - Ixy ** 2
+        self.J = Ix * Iy - Ixy**2
 
-    def update(self, sigmaps, sigmaes, sigmars, sigmaas):
+    def update(self, sigma_ps, sigma_es, sigma_rs, sigma_as):
         # Изменение силы тяги описывается соотношением
-        delta_P = (-self.P + 3538 * (sigmaps - 41.3)) / self.dt
-        self.P += delta_P
+        delta_p = (-self.P + 3538 * (sigma_ps - 41.3))
+        self.P += delta_p
 
-        delta_sigmae = (4 * (sigmaes - self.sigmae)) / self.dt
-        self.sigmae += delta_sigmae
+        # Для руля высоты
+        delta_sigma_e = (4 * (sigma_es - self.sigma_e))
+        self.sigma_e += delta_sigma_e
+        # if self.sigma_e > 10:
+        #     self.sigma_e = 10
+        # elif self.sigma_e < -10:
+        #     self.sigma_e = -10
 
         # Для руля направления:
-        delta_sigmar = 4 * (sigmars - self.sigmar)
-        self.sigmar += delta_sigmar
+        delta_sigma_r = 4 * (sigma_rs - self.sigma_r)
+        self.sigma_r += delta_sigma_r
+        # if self.sigma_r > 10:
+        #     self.sigma_r = 10
+        # elif self.sigma_r < -10:
+        #     self.sigma_r = -10
 
         # Для элеронов:
-        delta_sigmaa = 4 * (sigmaas - self.sigmaa)
-        self.sigmaa += delta_sigmaa
+        delta_sigma_a = 4 * (sigma_as - self.sigma_a)
+        self.sigma_a += delta_sigma_a
+        # if self.sigma_a > 10:
+        #     self.sigma_a = 10
+        # elif self.sigma_a < -10:
+        #     self.sigma_a = -10
+
+        self.calculation()
 
     def calculation(self):
         self.Vxg += self.axg / self.dt
@@ -104,66 +119,124 @@ class TU154:
         self.Vyg_ = self.Vyg - self.Wyg
         self.Vzg_ = self.Vzg - self.Wzg
 
-        self.V_ = np.sqrt(np.square(self.Vxg_) + np.square(self.Vyg_) + np.square(self.Vzg_))
+        self.V_ = np.sqrt(
+            np.square(self.Vxg_) + np.square(self.Vyg_) + np.square(self.Vzg_)
+        )
 
         # Скоростной напор q вычисляется по формуле
-        q = p * self.V_ ** 2 / 2
+        q = p * self.V_**2 / 2
 
         # Аэродинамические коэффициенты зависят также от угла атаки α
         # и угла скольжения β, которые вычисляются по формулам
 
-        beta = np.arcsin((
-                                 self.Vxg_ * (np.sin(self.yaw) * np.cos(self.roll) + np.cos(self.yaw) * np.sin(
-                             self.pitch) * np.sin(self.roll)) -
-                                 self.Vyg_ * np.cos(self.pitch) * np.sin(self.roll) +
-                                 self.Vzg_ * (np.cos(self.yaw) * np.cos(self.roll) - np.sin(self.yaw) * np.sin(
-                             self.pitch) * np.sin(self.roll))
-                         ) / self.V_ ** 2)
+        beta = np.rad2deg(
+            np.arcsin(
+                (
+                    self.Vxg_
+                    * (
+                        np.sin(np.radians(self.yaw))
+                        * np.cos(np.radians(self.roll))
+                        + np.cos(np.radians(self.yaw))
+                        * np.sin(np.radians(self.pitch))
+                        * np.sin(np.radians(self.roll))
+                    )
+                    - self.Vyg_
+                    * np.cos(np.radians(self.pitch))
+                    * np.sin(np.radians(self.roll))
+                    + self.Vzg_
+                    * (
+                        np.cos(np.radians(self.yaw))
+                        * np.cos(np.radians(self.roll))
+                        - np.sin(np.radians(self.yaw))
+                        * np.sin(np.radians(self.pitch))
+                        * np.sin(np.radians(self.roll))
+                    )
+                )
+                / self.V_**2
+            )
+        )
 
-        alfa = np.arcsin((
-                                 -self.Vxg_ * (np.sin(self.yaw) * np.sin(self.roll) - np.cos(self.yaw) * np.sin(
-                             self.pitch) * np.cos(self.roll)) -
-                                 self.Vyg_ * np.cos(self.pitch) * np.cos(self.roll) -
-                                 self.Vzg_ * (np.cos(self.yaw) * np.sin(self.roll) + np.sin(self.yaw) * np.sin(
-                             self.pitch) * np.cos(self.roll))
-                         ) / (self.V_ * np.cos(beta)))
+        alfa = np.rad2deg(
+            np.arcsin(
+                (
+                    -self.Vxg_
+                    * (
+                        np.sin(np.radians(self.yaw))
+                        * np.sin(np.radians(self.roll))
+                        - np.cos(np.radians(self.yaw))
+                        * np.sin(np.radians(self.pitch))
+                        * np.cos(np.radians(self.roll))
+                    )
+                    - self.Vyg_
+                    * np.cos(np.radians(self.pitch))
+                    * np.cos(np.radians(self.roll))
+                    - self.Vzg_
+                    * (
+                        np.cos(np.radians(self.yaw))
+                        * np.sin(np.radians(self.roll))
+                        + np.sin(np.radians(self.yaw))
+                        * np.sin(np.radians(self.pitch))
+                        * np.cos(np.radians(self.roll))
+                    )
+                )
+                / (self.V_ * np.cos(np.radians(beta)))
+            )
+        )
 
         # Коэффициенты cx, cy, cz аэродинамических сил в системе следует брать
         # в связанной системе координат. Они выражаются через коэффициенты
         # cx_, cy_, cz_ в полусвязанной системе соотношениями
 
-        cx_ = 0.21 + 0.004 * alfa + 0.47 * 0.001 * alfa ** 2
-        cy_ = 0.65 + 0.09 * alfa + 0.003 * self.sigmae
-        cz_ = -0.0115 * beta - (0.0034 - 6 * 0.00001 * alfa) * self.sigmar
+        cx_ = 0.21 + 0.004 * alfa + 0.47 * 0.001 * alfa**2
+        cy_ = 0.65 + 0.09 * alfa + 0.003 * self.sigma_e
+        cz_ = -0.0115 * beta - (0.0034 - 6 * 0.00001 * alfa) * self.sigma_r
 
-        cx = cx_ * np.cos(alfa) - cy_ * np.sin(alfa)
-        cy = cy_ * np.cos(alfa) + cx_ * np.sin(alfa)
+        cx = cx_ * np.cos(np.radians(alfa)) - cy_ * np.sin(np.radians(alfa))
+        cy = cy_ * np.cos(np.radians(alfa)) + cx_ * np.sin(np.radians(alfa))
         cz = cz_
 
         # Коэффициенты mx, my, mz аэродинамических моментов определяются следующими
         # выражениями. Для момента относительно оси x (строительная ось самолета):
 
-        mxbeta = -0.0035 - 0.0001 * alfa
-        mxr = -0.0005 + 0.00003 * alfa
-        mxalfa = -0.0004
-        mxx = -0.61 + 0.004 * alfa
-        mxy = -0.3 - 0.012 * alfa
-        mx = mxbeta * beta + mxr * self.sigmar + mxalfa * self.sigmaa + (l * 0.5 / self.V_) * (np.pi / 180) * (
-                mxx * self.wx + mxy * self.wy)
+        mx_beta = -0.0035 - 0.0001 * alfa
+        mx_r = -0.0005 + 0.00003 * alfa
+        mx_alfa = -0.0004
+        mx_x = -0.61 + 0.004 * alfa
+        mx_y = -0.3 - 0.012 * alfa
+        mx = (
+            mx_beta * beta
+            + mx_r * self.sigma_r
+            + mx_alfa * self.sigma_a
+            + (l * 0.5 / self.V_)
+            * (np.pi / 180)
+            * (mx_x * self.wx + mx_y * self.wy)
+        )
 
         # Для момента относительно оси y:
 
-        mybeta = -0.004 - 0.00005 * alfa
-        myr = -0.00135 + 0.000015 * alfa
-        myalfa = 0
-        myx = 0.015 * alfa
-        myy = -0.21 - 0.005 * alfa
-        my = mybeta * beta + myr * self.sigmar + myalfa * self.sigmaa + (l * 0.5 / self.V_) * (np.pi / 180) * (
-                myx * self.wx + myy * self.wy)
+        my_beta = -0.004 - 0.00005 * alfa
+        my_r = -0.00135 + 0.000015 * alfa
+        my_alfa = 0
+        my_x = 0.015 * alfa
+        my_y = -0.21 - 0.005 * alfa
+        my = (
+            my_beta * beta
+            + my_r * self.sigma_r
+            + my_alfa * self.sigma_a
+            + (l * 0.5 / self.V_)
+            * (np.pi / 180)
+            * (my_x * self.wx + my_y * self.wy)
+        )
 
         # Для момента относительно оси z:
 
-        mz = 0.033 - 0.017 * alfa - 0.013 * self.sigmae + 0.047 * self.sigmast - 1.29 * self.wz / self.V_
+        mz = (
+            0.033
+            - 0.017 * alfa
+            - 0.013 * self.sigma_e
+            + 0.047 * self.sigma_st
+            - 1.29 * self.wz / self.V_
+        )
 
         # Аэродинамические моменты:
 
@@ -175,37 +248,89 @@ class TU154:
         # дифференциальных уравнений 12-го порядка
 
         self.axg = (
-                           (self.P * np.cos(sigma) - q * s * cx) * np.cos(self.yaw) * np.cos(self.pitch) +
-                           (self.P * np.sin(sigma) + q * s * cy) * (
-                                   np.sin(self.yaw) * np.sin(self.roll) - np.cos(self.roll) * np.cos(self.yaw) * np.sin(
-                               self.pitch)) +
-                           q * s * cz * (np.sin(self.yaw) * np.cos(self.roll) + np.cos(self.yaw) * np.sin(
-                       self.pitch) * np.sin(self.pitch))
-                   ) / m
+            (self.P * np.cos(np.radians(sigma)) - q * s * cx)
+            * np.cos(np.radians(self.yaw))
+            * np.cos(np.radians(self.pitch))
+            + (self.P * np.sin(np.radians(sigma)) + q * s * cy)
+            * (
+                np.sin(np.radians(self.yaw)) * np.sin(np.radians(self.roll))
+                - np.cos(np.radians(self.roll))
+                * np.cos(np.radians(self.yaw))
+                * np.sin(np.radians(self.pitch))
+            )
+            + q
+            * s
+            * cz
+            * (
+                np.sin(np.radians(self.yaw)) * np.cos(np.radians(self.roll))
+                + np.cos(np.radians(self.yaw))
+                * np.sin(np.radians(self.pitch))
+                * np.sin(np.radians(self.pitch))
+            )
+        ) / m
 
         self.ayg = (
-                           (self.P * np.cos(sigma) - q * s * cx) * np.sin(self.pitch) +
-                           (self.P * np.sin(sigma) + q * s * cy) * np.cos(self.pitch) * np.cos(self.roll) -
-                           q * s * cz * np.cos(self.pitch) * np.sin(self.roll)
-                   ) / m - g
+            (self.P * np.cos(np.radians(sigma)) - q * s * cx)
+            * np.sin(np.radians(self.pitch))
+            + (self.P * np.sin(np.radians(sigma)) + q * s * cy)
+            * np.cos(np.radians(self.pitch))
+            * np.cos(np.radians(self.roll))
+            - q
+            * s
+            * cz
+            * np.cos(np.radians(self.pitch))
+            * np.sin(np.radians(self.roll))
+        ) / m - g
 
         self.azg = (
-                           (self.P * np.cos(sigma) - q * s * cx) * (-np.sin(self.yaw) * np.cos(self.pitch)) +
-                           (self.P * np.sin(sigma) + q * s * cy) * (
-                                   np.cos(self.yaw) * np.sin(self.roll) + np.sin(self.yaw) * np.sin(
-                               self.pitch) * np.cos(self.roll)) +
-                           q * s * cz * (np.cos(self.yaw) * np.cos(self.roll) - np.sin(self.yaw) * np.sin(
-                       self.pitch) * np.sin(self.roll))
-                   ) / m
+            (self.P * np.cos(np.radians(sigma)) - q * s * cx)
+            * (-np.sin(np.radians(self.yaw)) * np.cos(np.radians(self.pitch)))
+            + (self.P * np.sin(np.radians(sigma)) + q * s * cy)
+            * (
+                np.cos(np.radians(self.yaw)) * np.sin(np.radians(self.roll))
+                + np.sin(np.radians(self.yaw))
+                * np.sin(np.radians(self.pitch))
+                * np.cos(np.radians(self.roll))
+            )
+            + q
+            * s
+            * cz
+            * (
+                np.cos(np.radians(self.yaw)) * np.cos(np.radians(self.roll))
+                - np.sin(np.radians(self.yaw))
+                * np.sin(np.radians(self.pitch))
+                * np.sin(np.radians(self.roll))
+            )
+        ) / m
 
-        self.w_pitch = self.wz * np.cos(self.roll) + self.wy * np.sin(self.pitch)
-        self.w_yaw = (self.wy * np.cos(self.roll) - self.wz * np.sin(self.roll)) / np.cos(self.pitch)
-        self.w_roll = self.wx - (self.wy * np.cos(self.roll) - self.wz * np.sin(self.roll)) / np.tan(self.pitch)
+        self.w_pitch = self.wz * np.cos(
+            np.radians(self.roll)
+        ) + self.wy * np.sin(np.radians(self.pitch))
+        self.w_yaw = (
+            self.wy * np.cos(np.radians(self.roll))
+            - self.wz * np.sin(np.radians(self.roll))
+        ) / np.cos(np.radians(self.pitch))
+        self.w_roll = self.wx - (
+            self.wy * np.cos(np.radians(self.roll))
+            - self.wz * np.sin(np.radians(self.roll))
+        ) / np.tan(np.radians(self.pitch))
 
-        self.a_wz = (Ixy * (self.wx ** 2 - self.wy ** 2) - (Iy - Ix) * self.wx * self.wy + Mz) / Iz
-        self.a_wy = ((Iy - Iz) * Ixy * self.wy * self.wz + (
-                Iz - Ix) * Ix * self.wx * self.wz + Ix * My + Ixy * Mx + Ixy * self.wz * (
-                             Ix * self.wy - Ixy * self.wx)) / self.J
-        self.a_wx = ((Iy - Iz) * Iy * self.wy * self.wz + (
-                Iz - Ix) * Ixy * self.wx * self.wz + Iy * Mx + Ixy * My + Ixy * self.wz * (
-                             Ixy * self.wy - Iy * self.wx)) / self.J
+        self.a_wz = (
+            Ixy * (self.wx**2 - self.wy**2)
+            - (Iy - Ix) * self.wx * self.wy
+            + Mz
+        ) / Iz
+        self.a_wy = (
+            (Iy - Iz) * Ixy * self.wy * self.wz
+            + (Iz - Ix) * Ix * self.wx * self.wz
+            + Ix * My
+            + Ixy * Mx
+            + Ixy * self.wz * (Ix * self.wy - Ixy * self.wx)
+        ) / self.J
+        self.a_wx = (
+            (Iy - Iz) * Iy * self.wy * self.wz
+            + (Iz - Ix) * Ixy * self.wx * self.wz
+            + Iy * Mx
+            + Ixy * My
+            + Ixy * self.wz * (Ixy * self.wy - Iy * self.wx)
+        ) / self.J
