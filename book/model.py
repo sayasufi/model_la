@@ -97,21 +97,21 @@ class TU154:
         self.calculation()
 
     def calculation(self):
-        self.Vxg += self.axg / self.dt
-        self.Vyg += self.ayg / self.dt
-        self.Vzg += self.azg / self.dt
+        self.Vxg += self.axg
+        self.Vyg += self.ayg
+        self.Vzg += self.azg
 
-        self.x += self.Vxg / self.dt
-        self.y += self.Vyg / self.dt
-        self.z += self.Vzg / self.dt
+        self.x += self.Vxg
+        self.y += self.Vyg
+        self.z += self.Vzg
 
-        self.wx += self.a_wx / self.dt
-        self.wy += self.a_wy / self.dt
-        self.wz += self.a_wz / self.dt
+        self.wx += self.a_wx
+        self.wy += self.a_wy
+        self.wz += self.a_wz
 
-        self.pitch += self.w_pitch / self.dt
-        self.roll += self.w_roll / self.dt
-        self.yaw += self.w_yaw / self.dt
+        self.pitch += self.w_pitch
+        self.roll += self.w_roll
+        self.yaw += self.w_yaw
 
         # Компоненты скорости ветра wxg , wyg , wzg влияют
         # на составляющие Vxg_ , Vyg_ , Vzg_ вектора воздушной скорости:
@@ -152,7 +152,7 @@ class TU154:
                         * np.sin(np.radians(self.roll))
                     )
                 )
-                / self.V_**2
+                / self.V_
             )
         )
 
@@ -265,7 +265,7 @@ class TU154:
                 np.sin(np.radians(self.yaw)) * np.cos(np.radians(self.roll))
                 + np.cos(np.radians(self.yaw))
                 * np.sin(np.radians(self.pitch))
-                * np.sin(np.radians(self.pitch))
+                * np.sin(np.radians(self.roll))
             )
         ) / m
 
