@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VPNP_test", "VPNP_test.vcxproj", "{41A833B2-BBD0-4539-8C99-B0C78D54CECB}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "VPNP imitator", "..\VPNP imitator\VPNP imitator.vdproj", "{6EF0442F-AFE5-4EF7-81F7-C883541F708A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Debug|x64.ActiveCfg = Debug|x64
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Debug|x64.Build.0 = Debug|x64
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Debug|x86.ActiveCfg = Debug|Win32
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Debug|x86.Build.0 = Debug|Win32
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Release|x64.ActiveCfg = Release|x64
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Release|x64.Build.0 = Release|x64
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Release|x86.ActiveCfg = Release|Win32
+		{41A833B2-BBD0-4539-8C99-B0C78D54CECB}.Release|x86.Build.0 = Release|Win32
+		{6EF0442F-AFE5-4EF7-81F7-C883541F708A}.Debug|x64.ActiveCfg = Debug
+		{6EF0442F-AFE5-4EF7-81F7-C883541F708A}.Debug|x86.ActiveCfg = Debug
+		{6EF0442F-AFE5-4EF7-81F7-C883541F708A}.Release|x64.ActiveCfg = Release
+		{6EF0442F-AFE5-4EF7-81F7-C883541F708A}.Release|x86.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {46BB193B-10FA-4AB7-8267-02F2E26C8465}
+	EndGlobalSection
+EndGlobal

@@ -203,25 +203,72 @@ class S_UDP_PACK_ODS_DATA:
         self.arinc = Arinc()
 
     def update(self, slovar):
-        self.upd["pitch"] = struct.unpack("I", self.arinc.get_data("pitch", slovar["PLANE_BANK_DEGREES"]))[0]
-        print(self.upd["pitch"])
+        self.upd["pitch"] = struct.unpack(
+            "I", self.arinc.get_data("pitch", slovar["PLANE_BANK_DEGREES"])
+        )[0]
+        self.upd["roll"] = struct.unpack(
+            "I", self.arinc.get_data("roll", slovar["PLANE_PITCH_DEGREES"])
+        )[0]
+        self.upd["course_mag"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "course_mag", slovar["PLANE_HEADING_DEGREES_MAGNETIC"]
+            ),
+        )[0]
+        self.upd["course_track_mag"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "course_track_mag", slovar["-"]
+            ),
+        )[0]
+        self.upd["course_true"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "course_true", slovar["PLANE_HEADING_DEGREES_TRUE"]
+            ),
+        )[0]
+        self.upd["course_gyro"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "course_gyro", slovar["PLANE_HEADING_DEGREES_GYRO"]
+            ),
+        )[0]
+        self.upd["w_x"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "w_x", slovar["ROTATION_VELOCITY_BODY_X"]
+            ),
+        )[0]
+        self.upd["w_y"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "w_y", slovar["ROTATION_VELOCITY_BODY_Z"]
+            ),
+        )[0]
+        self.upd["course_gyro"] = struct.unpack(
+            "I",
+            self.arinc.get_data(
+                "course_gyro", slovar["PLANE_HEADING_DEGREES_GYRO"]
+            ),
+        )[0]
 
 
-
-start = time.time()
 # Создание экземпляра структуры
 udp_pack = S_UDP_PACK_ODS_DATA()
-udp_pack.update({"PLANE_BANK_DEGREES": 30})
-packed_data = struct.pack(
-    "H" * 27 + "I" * 105 + "H" * 46 + "I" * 3, *udp_pack.upd.values()
-)
 
+start = time.time()
+for i in range(1000):
+    udp_pack.update({"PLANE_BANK_DEGREES": i % 30})
+    packed_data = struct.pack(
+        "H" * 27 + "I" * 105 + "H" * 46 + "I" * 3, *udp_pack.upd.values()
+    )
+print(time.time() - start)
 print(packed_data)
 print(sys.getsizeof(packed_data) - sys.getsizeof(b""))
 # un = struct.unpack("H" * 28 + "I" * 104 + "H" * 46 + "I" * 3, packed_data)
 # print(un)
 # print(len(un))
-# print(time.time() - start)
+
 # # Отправка данных по UDP
 # UDP_IP = "127.0.0.1"  # IP адрес получателя
 # UDP_PORT = 1234  # Порт получателя
