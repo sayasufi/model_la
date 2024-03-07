@@ -2,6 +2,7 @@ import struct
 import sys
 import time
 
+from arinc import Arinc
 from unions import Unions
 
 
@@ -25,7 +26,7 @@ class S_UDP_PACK_ODS_DATA:
             "_reserve0": 0x0000,
             "sds2": struct.unpack("H", self.unions.sds2_data)[0],
             "sds3": struct.unpack("H", self.unions.sds3_data)[0],
-            "r0": 0x0000,
+            "sds4": 0x0000,
             "r1": 0x0000,
             "r2": 0x0000,
             "r3": 0x0000,
@@ -37,7 +38,6 @@ class S_UDP_PACK_ODS_DATA:
             "r9": 0x0000,
             "r10": 0x0000,
             "r11": 0x0000,
-            "r12": 0x0000,
             "preface_ar_1": 0xA1FA,  # Преамбула канала ARINC-429 №1(Данные ИНС) ВПНП-1М */
             "cnt_p1": 0x00000000,  # Счетчик посылок
             "sds_01_p1": struct.unpack("I", self.unions.sds_01_p1_data)[0],
@@ -87,10 +87,11 @@ class S_UDP_PACK_ODS_DATA:
             "reserv_11": 0x00000000,
             "p1_end_sig": 0xAF1A,  # Индентификатор окончания пакета №1
             "reserv_12": 0x00000000,  # !!!
-            # /******/
-            # /* P2 */
-            # /******/
+            # # /******/
+            # # /* P2 */
+            # # /******/
             "preface_ar_2": 0xA2FA,  # Преамбула канала ARINC-429 №2(Данные СВС) ВПНП-1М
+            "cnt_p2": 0x00000000,  # Счетчик посылок
             "sds_01_p2": 0x00000000,  # СДС 1
             "sds_02_p2": 0x00000000,  # СДС 2
             "H_abs": 0x00000000,  # абсолютная барометрическая высота [м]
@@ -116,9 +117,9 @@ class S_UDP_PACK_ODS_DATA:
             "altitude_trend": 0x00000000,  # Тренд высоты Habs
             "speed_trend": 0x00000000,  # Тренд скорости приборной
             "p2_end_sig": 0xAF2A,
-            # /******/
-            # /* P3 */
-            # /******/
+            # # /******/
+            # # /* P3 */
+            # # /******/
             "preface_ar_3": 0xA3FA,  # Преамбула канала ARINC-429 №3(Данные СНС) ВПНП-1М
             "cnt_p3": 0x00000000,  # Счетчик посылок
             "sds_01_p3": struct.unpack("I", self.unions.sds_01_p3_data)[0],
@@ -147,30 +148,80 @@ class S_UDP_PACK_ODS_DATA:
             "reserv_26": 0x00000000,
             "reserv_27": 0x00000000,
             "reserv_28": 0x00000000,
-            "p3_end_sig": 0x3AAF
+            "p3_end_sig": 0xAF3A,  # Идентификатор окончания пакета №3
+            "sds1X": 0x0000,
+            "sds2X": struct.unpack("H", self.unions.sds2X_data)[0],
+            "sds3X": struct.unpack("H", self.unions.sds3X_data)[0],
+            "sds4X": 0x0000,
+            "pressure": 0x0000,  # Давление(коррекция)
+            "flash_page": 0x0000,  # Номер используемой страницы FLASH
+            "flash_block": 0x0000,  # Номер используемогог блока FLASH
+            "_reserve1": 0x0000,
+            "rudder_trim_pos": 0x0000,
+            "ailerons_trim_pos": 0x0000,
+            "elevator_trim_pos": 0x0000,
+            "battery_current": 0x0000,  # Ток аккумулятора
+            "battery_voltage": 0x0000,  # Напряжение аккумулятора
+            "generator_current": 0x0000,  # Ток генератора
+            "generator_voltage": 0x0000,  # Напряжение генератора
+            "oil_pressure": 0x0000,  # Давление масла
+            "fuel_pressure": 0x0000,  # Давление топлива
+            "fuel_consumption": 0x0000,  # Расход топлива
+            "oil_temperature": 0x0000,  # Температура масла
+            "fuel_rem_l": 0x0000,  # Остаток топлива в левом баке
+            "fuel_rem_r": 0x0000,  # Остаток топлива в правом баке
+            "engine_torque": 0x0000,  # Значение крутящего момента/шага винта
+            "engine_rate": 0x0000,  # Значение оборотов двигателя
+            "engine_exhaust_temperature": 0x0000,  # Температура выходящих газов двигателя
+            "flaps_position": 0x0000,  # Положение закрылков
+            "oil_radiator_position": 0x0000,  # Положение створки маслорадиатора
+            "alpha": 0x0000,  # Расчетный угол атаки
+            "alpha_min": 0x0000,  # Угол атаки минимально допустимый
+            "alpha_max": 0x0000,  # Угол атаки максимально допустимый
+            "ny_min": 0x0000,  # Перегрузка минимально допустимая
+            "ny_max": 0x0000,  # Перегрузка максимально допустимая
+            "speed_min": 0x0000,  # Скорость минимально допустимая
+            "speed_max": 0x0000,  # Скорость максимально допустимая
+            "fuel_rem": 0x0000,  # Общий остаток топлива
+            "rudder_position": 0x0000,  # Положение руля направления
+            "ailerons_position": 0x0000,  # Положение элеронов
+            "elevator_position": 0x0000,  # Положение руля высоты
+            "slide_position": 0x0000,  # Положение шарика скольжения(боковая перегрузка)
+            "adjust_course_value": 0x0000,
+            "adjust_pitch_value": 0x0000,
+            "adjust_roll_value": 0x0000,
+            "Nz_filter": 0x0000,
+            "Ny_filter": 0x0000,
+            "Vy_filter": 0x0000,
+            "Alpha_filter": 0x0000,
+            "air_temperature": 0x0000,
+            "_reserve3": 0x00000000,
+            "cnt_ispr": 0x00000000,  # Счетчик исправности
+            "crc_pack": 0x00000000,  # Контрольная сумма пакета
         }
 
-        # self.upd_sruct = (
-        #     (self.upd["preface_1"] << 48)
-        #     | (self.upd["preface_2"] << 32)
-        #     | (self.upd["preface_3"] << 16)
-        #     | self.upd["preface_4"]
-        # )
+        self.arinc = Arinc()
+
+    def update(self, slovar):
+        self.upd["pitch"] = struct.unpack("I", self.arinc.get_data("pitch", slovar["PLANE_BANK_DEGREES"]))[0]
+        print(self.upd["pitch"])
+
 
 
 start = time.time()
 # Создание экземпляра структуры
 udp_pack = S_UDP_PACK_ODS_DATA()
-print(udp_pack.upd["sds1"])
-
-packed_data = struct.pack("H" * 28 + "I" * 76, *udp_pack.upd.values())
+udp_pack.update({"PLANE_BANK_DEGREES": 30})
+packed_data = struct.pack(
+    "H" * 27 + "I" * 105 + "H" * 46 + "I" * 3, *udp_pack.upd.values()
+)
 
 print(packed_data)
 print(sys.getsizeof(packed_data) - sys.getsizeof(b""))
-un = struct.unpack("H" * 28 + "I" * 76, packed_data)
-print(un)
-print(len(un))
-print(time.time() - start)
+# un = struct.unpack("H" * 28 + "I" * 104 + "H" * 46 + "I" * 3, packed_data)
+# print(un)
+# print(len(un))
+# print(time.time() - start)
 # # Отправка данных по UDP
 # UDP_IP = "127.0.0.1"  # IP адрес получателя
 # UDP_PORT = 1234  # Порт получателя
